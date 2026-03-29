@@ -1,0 +1,167 @@
+# Schnellstart zum Erstellen von GitHub Apps
+
+Erstelle schnell eine GitHub App, die Pull Requests kommentiert.
+
+## Einführung
+
+Mit GitHub Apps kannst du Prozesse automatisieren oder andere Plattformen in GitHub integrieren. Weitere Informationen findest du unter [Informationen zum Erstellen von GitHub Apps](/de/apps/creating-github-apps/creating-github-apps/about-apps).
+
+In dieser Schnellstartanleitung wird beschrieben, wie du schnell eine GitHub App erstellst. Wenn ein Pull Request in einem Repository geöffnet wird, auf das der App Zugriff gewährt wurde, fügt die App einen Kommentar zum Pull Request hinzu.
+
+In dieser Schnellstartanleitung wird vorab geschriebener Code verwendet, um dir den Einstieg zu erleichtern. Ein ausführlicheres Tutorial als Unterstützung beim Schreiben des Codes findest du unter [Erstellen einer GitHub-App, die auf Webhook-Ereignisse reagiert](/de/apps/creating-github-apps/guides/building-a-github-app-that-responds-to-webhook-events).
+
+## Voraussetzungen
+
+Dein Computer oder Codespace muss die Node.js-Version 12 oder höher verwenden. Weitere Informationen findest du unter [Node.js](https://nodejs.org).
+
+## Schritt 1: Klonen des App-Codes
+
+Um dir den Einstieg zu erleichtern, haben wir Code geschrieben, den du verwenden kannst. Weitere Informationen dazu, wie du den Code selbst schreibst, findest du unter [Erstellen einer GitHub-App, die auf Webhook-Ereignisse reagiert](/de/apps/creating-github-apps/guides/building-a-github-app-that-responds-to-webhook-events).
+
+1. Klone das Repository [github/github-app-js-sample](https://github.com/github/github-app-js-sample). Weitere Informationen finden Sie unter [Ein Repository klonen](/de/repositories/creating-and-managing-repositories/cloning-a-repository). Du kannst einen lokalen Klon oder GitHub Codespaces verwenden.
+2. Navigiere in einem Terminalfenster zu dem Verzeichnis, in dem dein Klon gespeichert ist.
+3. Führe `npm install` aus, um die Abhängigkeiten zu installieren.
+
+## Schritt 2: Abrufen einer Webhook-Proxy-URL
+
+Um deine App lokal zu entwickeln, kannst du eine Webhook-Proxy-URL verwenden, um Webhooks von GitHub an deinen Computer oder Codespace weiterzuleiten. In dieser Schnellstartanleitung wird „Smee.io“ verwendet, um eine Webhook-Proxy-URL bereitzustellen und Webhooks weiterzuleiten.
+
+1. Navigiere im Browser zu <https://smee.io/>.
+2. Klicke auf **Neuen Kanal starten**.
+3. Kopiere die vollständige URL unter „Webhook-Proxy-URL“. Du verwendest diese URL in einem späteren Schritt.
+
+## Schritt 3: Registrieren einer GitHub App
+
+Die folgenden Schritte führen dich durch die Konfiguration der App-Einstellungen, die für diese Schnellstartanleitung erforderlich sind. Weitere Informationen zu den Einstellungen findest du unter [Registrieren einer GitHub-App](/de/apps/creating-github-apps/creating-github-apps/creating-a-github-app).
+
+1. Klicke auf GitHub in der oberen rechten Ecke einer beliebigen Seite auf dein Profilfoto.
+2. Navigieren Sie zu den Einstellungen für Ihr Konto.
+   * Klicken Sie bei einer App, die zu einem persönlichen Konto gehört, auf **Einstellungen**.
+   * Für eine App im Besitz einer Organisation:
+     1. Klicke Sie auf **Ihre Organisationen**.
+     2. Klicke dann rechts neben der Organisation auf **Einstellungen**.
+3. Klicke in der linken Randleiste auf **<svg version="1.1" width="16" height="16" viewBox="0 0 16 16" class="octicon octicon-code" aria-label="code" role="img"><path d="m11.28 3.22 4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L13.94 8l-3.72-3.72a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215Zm-6.56 0a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L2.06 8l3.72 3.72a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L.47 8.53a.75.75 0 0 1 0-1.06Z"></path></svg> Developer settings**.
+4. Klicke auf der linken Randleiste auf **GitHub Apps** .
+5. Klicken Sie auf **Neue GitHub App** .
+6. Geben Sie unter „Name der GitHub App“ einen Namen für Ihre App ein. Beispielsweise `USERNAME-quickstart-app`, wobei `USERNAME` dein GitHub-Benutzername ist.
+7. Gibt unter „Homepage-URL“ Folgendes ein: `https://github.com/github/github-app-js-sample#readme`.
+8. Überspringe für diesen Schnellstart die Abschnitte „Identifizieren und Autorisieren von Benutzern“ und „Nach der Installation“. Weitere Informationen zu diesen Einstellungen findest du unter [Registrieren einer GitHub-App](/de/apps/creating-github-apps/creating-github-apps/creating-a-github-app).
+9. Stelle sicher, dass unter „Webhooks“ die Option **Aktiv** ausgewählt ist.
+10. Gib unter „Webhook-URL“ deine Webhook-Proxy-URL von früher ein. Weitere Informationen findest du unter [Schritt 2: Abrufen einer Webhookproxy-URL](#step-2-get-a-webhook-proxy-url).
+11. Gib unter „Webhookgeheimnis“ eine zufällige Zeichenfolge ein. Du wirst diese Zeichenfolge später noch verwenden.
+12. Wähle unter „Repository-Berechtigungen“ neben „Pull Requests“ die Option **Lesen & Schreiben** aus.
+13. Wähle unter „Ereignisse abonnieren“ die Option **Pull Request** aus.
+14. Wählen Sie unter „Wo kann diese GitHub App installiert werden?“ die Option **Nur in diesem Konto** aus.
+15. Klicken Sie auf **GitHub App erstellen**.
+
+## Schritt 4: Speichern von Informationen für Identifizierung und Anmeldung
+
+In dieser Schnellstartanleitung speicherst du die Anmeldeinformationen und Identifizierungsdaten deiner App als Umgebungsvariablen in einer `.env`-Datei. Wenn du deine App bereitstellst, musst du die Art und Weise ändern, in der die Anmeldeinformationen gespeichert werden. Weitere Informationen findest du unter [Bereitstellen deiner App](#deploy-your-app).
+
+Stelle sicher, dass du dich auf einem sicheren Computer befindest, bevor du diese Schritte ausführst, da du deine Anmeldeinformationen lokal speicherst.
+
+### Erstellen Sie eine `.env` Datei
+
+Ihr geklontes Repository enthält `.env` in der `.gitignore`-Datei. Dadurch vermeidest du, versehentlich die Zugangsdaten deiner App zu veröffentlichen. Weitere Informationen zu `.gitignore`-Dateien findest du unter [Ignorieren von Dateien](/de/get-started/git-basics/ignoring-files).
+
+1. Navigiere zu dem Verzeichnis, in dem dein Klon von [github/github-app-js-sample](https://github.com/github/github-app-js-sample) gespeichert ist.
+2. Erstelle eine Datei namens `.env` auf der obersten Ebene dieses Verzeichnisses.
+3. Füge der `.env`-Datei den folgenden Inhalt hinzu. Du aktualisierst die Werte in einem späteren Schritt.
+
+   ```text copy
+   APP_ID="YOUR_APP_ID"
+   WEBHOOK_SECRET="YOUR_WEBHOOK_SECRET"
+   PRIVATE_KEY_PATH="YOUR_PRIVATE_KEY_PATH"
+   ```
+
+### Navigieren zu deinen App-Einstellungen
+
+Wenn du die App-Einstellungen nach dem Erstellen der App verlassen hast, wechsle jetzt zur Einstellungsseite für deine App:
+
+1. Klicke auf GitHub in der oberen rechten Ecke einer beliebigen Seite auf dein Profilfoto.
+2. Navigieren Sie zu den Einstellungen für Ihr Konto.
+   * Klicken Sie bei einer App, die zu einem persönlichen Konto gehört, auf **Einstellungen**.
+   * Für eine App im Besitz einer Organisation:
+     1. Klicke Sie auf **Ihre Organisationen**.
+     2. Klicken Sie rechts neben der Organisation auf **Einstellungen**.
+3. Klicke in der linken Randleiste auf **<svg version="1.1" width="16" height="16" viewBox="0 0 16 16" class="octicon octicon-code" aria-label="code" role="img"><path d="m11.28 3.22 4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L13.94 8l-3.72-3.72a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215Zm-6.56 0a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L2.06 8l3.72 3.72a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L.47 8.53a.75.75 0 0 1 0-1.06Z"></path></svg> Developer settings**.
+4. Klicke auf der linken Randleiste auf **GitHub Apps** .
+5. Klicke neben dem Namen deiner App auf **Bearbeiten**.
+
+### Erhalte die Anmeldeinformationen und Identifikationsdaten deiner App.
+
+1. Suche auf der Einstellungenseite deiner App neben „App-ID“ die App-ID für deine App.
+2. Ersetze in deiner `.env`-Datei `YOUR_APP_ID` durch die App-ID deiner App.
+3. Klicke auf der Einstellungenseite deiner App unter „Private Schlüssel“ auf **Privaten Schlüssel generieren**. Es wird ein privater Schlüssel im PEM-Format auf deinen Computer heruntergeladen. Weitere Informationen finden Sie unter [Verwalten privater Schlüssel für GitHub Apps](/de/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps).
+4. Wenn du einen Codespace verwendest, verschiebe die heruntergeladene PEM-Datei in deinen Codespace, damit dein Codespace auf die Datei zugreifen kann.
+5. Ersetze in deiner `.env`-Datei `YOUR_PRIVATE_KEY_PATH` durch den vollständigen Pfad zu deinem privaten Schlüssel, einschließlich der `.pem`-Erweiterung.
+6. Ersetze in deiner `.env`-Datei `YOUR_WEBHOOK_SECRET` durch das Webhookgeheimnis für deine App. Wenn du dein Webhookgeheimnis vergessen hast, klicke unter „Webhookgeheimnis (optional)“ auf **Geheimnis ändern**. Gib ein neues Geheimnis ein, und klicke dann auf **Änderungen speichern**.
+
+## Schritt 5: Installieren der App
+
+Damit deine App einen Kommentar zu Pull Requests in einem Repository hinterlassen kann, muss sie in dem Konto installiert werden, das das Repository besitzt, und ihr muss Zugriff auf dieses Repository gewährt werden. Da deine App privat ist, kann sie nur auf dem Konto installiert werden, das Besitzer der App ist.
+
+1. Erstelle in dem Konto, das Besitzer der von dir erstellten App ist, ein neues Repository zum Installieren der App. Weitere Informationen finden Sie unter [Ein neues Repository erstellen](/de/repositories/creating-and-managing-repositories/creating-a-new-repository).
+2. Wenn du die App-Einstellungen nach dem Erstellen der App verlassen hast, wechsle jetzt zur Einstellungsseite für deine App. Weitere Informationen findest du unter [Navigieren zu deinen App-Einstellungen](#navigate-to-your-app-settings).
+3. Klicke auf **Öffentliche Seite**.
+4. Klicke auf **Installieren**.
+5. Wählen Sie **Nur Repositorys auswählen** aus.
+6. Wähle das Dropdownmenü **Repositorys auswählen** aus, und klicke auf das Repository, das du am Anfang dieses Abschnitts ausgewählt hast.
+7. Klicke auf **Installieren**.
+
+## Schritt 6: Starten des Servers
+
+Zum Testen verwendest du deinen Computer oder Codespace als Server. Deine App ist nur dann aktiv, wenn dein Server ausgeführt wird.
+
+1. Navigiere in einem Terminalfenster zu dem Verzeichnis, in dem dein Klon von [github/github-app-js-sample](https://github.com/github/github-app-js-sample) gespeichert ist.
+
+2. Führe `npx smee -u WEBHOOK_PROXY_URL -t http://localhost:3000/api/webhook` aus, um weitergeleitete Webhooks von „Smee.io“ zu empfangen. Ersetze `WEBHOOK_PROXY_URL` durch deine Webhook-Proxy-URL. Wenn du deine URL vergessen hast, findest du sie im Feld "Webhook-URL" auf der Einstellungenseite deiner App.
+
+   Die Ausgabe sollte wie folgt aussehen, wobei `WEBHOOK_PROXY_URL` deine Webhook-Proxy-URL ist.
+
+   ```shell
+   Forwarding WEBHOOK_PROXY_URL to http://localhost:3000/api/webhook
+   Connected WEBHOOK_PROXY_URL
+   ```
+
+3. Navigiere in einem zweiten Terminalfenster zu dem Verzeichnis, in dem dein Klon von [github/github-app-js-sample](https://github.com/github/github-app-js-sample) gespeichert ist.
+
+4. Führen Sie `npm run server` aus. Auf deinem Terminal sollte `Server is listening for events at: http://localhost:3000/api/webhook` angezeigt werden.
+
+## Schritt 7: Testen der App
+
+Dein Server wird jetzt ausgeführt und empfängt weitergeleitete Webhookereignisse. Teste deine App, indem du einen Pull Request öffnest.
+
+1. Öffne einen Pull Request für das Repository, das du in [Schritt 5: Installieren der App](#step-5-install-your-app) erstellt hast. Weitere Informationen finden Sie unter [Erstellen eines Pull Requests](/de/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
+2. Navigiere zu deiner Webhook-Proxy-URL auf „smee.io“. Es sollte ein `pull_request`-Ereignis angezeigt werden. Dies zeigt, dass GitHub beim Erstellen eines Pull Requests erfolgreich ein Pull Request-Ereignis gesendet hat.
+3. In dem Terminal, in dem du `npm run server` ausgeführt hast, sollte Ähnliches wie „Pull Request-Ereignis für #1 empfangen“ angezeigt werden, wobei die ganze Zahl nach `#` die Nummer des Pull Requests ist, den du geöffnet hast.
+4. Auf der Zeitachse deines Pull Requests sollte ein Kommentar deiner App angezeigt werden. Der Kommentar verwendet den Inhalt der `message.md`-Datei in deinem geklonten Repository.
+5. Gib in beiden Terminalfenstern <kbd>STRG</kbd>+<kbd>C</kbd> ein, um den Server zu beenden und nicht mehr auf weitergeleitete Webhooks zu lauschen.
+
+## Nächste Schritte
+
+Du verfügst jetzt über eine App. Als Nächstes kannst du den Code deiner App erweitern, die App bereitstellen und sie öffentlich machen.
+
+### Ändern des App-Codes
+
+Forke das Repository [github/github-app-js-sample](https://github.com/github/github-app-js-sample), und ändere den Code, um auf verschiedene Webhookereignisse zu reagieren oder verschiedene API-Anforderungen zu übermitteln. Weitere Informationen zum Code findest du unter [Erstellen einer GitHub-App, die auf Webhook-Ereignisse reagiert](/de/apps/creating-github-apps/guides/building-a-github-app-that-responds-to-webhook-events).
+
+Denke daran, die Berechtigungen deiner App zu aktualisieren, wenn deine App zusätzliche Berechtigungen für die API-Anforderungen benötigt, die du erstellen möchtest, oder die Webhookereignisse, die du empfangen möchtest. Weitere Informationen finden Sie unter [Auswählen von Berechtigungen für eine GitHub App](/de/apps/creating-github-apps/creating-github-apps/setting-permissions-for-github-apps).
+
+### Bereitstellen Ihrer App
+
+In diesem Tutorial wurde dein Computer oder Codespace als Server verwendet. Sobald die App für die Verwendung in der Produktion bereit ist, solltest du deine App auf einem dedizierten Server bereitstellen. Sie können z. B. [Azure App Service](https://azure.microsoft.com/products/app-service/) verwenden.
+
+Wenn du über einen Server verfügst, aktualisiere die Webhook-URL in den Einstellungen deiner App. Du solltest „Smee.io“ nicht verwenden, um deine Webhooks in der Produktion weiterzuleiten.
+
+Außerdem musst du die Konstanten `port` und `host` im Code aktualisieren. Weitere Informationen finden Sie unter [Erstellen einer GitHub-App, die auf Webhook-Ereignisse reagiert](/de/apps/creating-github-apps/guides/building-a-github-app-that-responds-to-webhook-events#deploy-your-app).
+
+Du solltest niemals den privaten Schlüssel deiner App oder das Webhookgeheimnis veröffentlichen. In diesem Tutorial wurden die Anmeldeinformationen deiner App in einer von Git ignorierten `.env`-Datei gespeichert. Wenn du deine App bereitstellst, solltest du eine sichere Methode zum Speichern der Anmeldeinformationen auswählen und deinen Code aktualisieren, um den Wert entsprechend abzurufen. Du kannst die Anmeldeinformationen beispielsweise in einer Umgebungsvariable auf dem Server speichern, auf dem deine App bereitgestellt ist. Sie können auch einen Geheimverwaltungsdienst wie [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault) verwenden.
+
+### Teilen Sie Ihre App
+
+Wenn du deine App für andere Benutzer und Organisationen freigeben möchtest, mache deine App öffentlich. Weitere Informationen finden Sie unter [Erstellen einer GitHub App öffentlich oder privat](/de/apps/creating-github-apps/creating-github-apps/making-a-github-app-public-or-private).
+
+### Bewährte Methode befolgen
+
+Du solltest bewährten Methoden für deine GitHub App folgen. Weitere Informationen finden Sie unter [Bewährte Methoden zum Erstellen einer GitHub-App](/de/apps/creating-github-apps/setting-up-a-github-app/best-practices-for-creating-a-github-app).
